@@ -6,7 +6,7 @@ import { Clipboard, Link as LinkIcon, Settings } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/pages/auth/authContext";
 import { fetchUserById } from "@/services/userapi";
-import { Textarea } from "@/components/ui/Textarea.jsx";
+import { Textarea } from "../../ui/Textarea.jsx";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ImageUpload from "../addcour/ImageUpload";
