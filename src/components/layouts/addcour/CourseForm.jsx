@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input"; 
-import { Textarea } from "@/components/ui/Textarea"; 
+import { Textarea } from "@/components/ui/textarea"; 
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ImageUpload from "./ImageUpload"; 
