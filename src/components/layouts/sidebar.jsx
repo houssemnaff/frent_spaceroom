@@ -58,9 +58,7 @@ const Sidebar = () => {
     { icon: FaCalendarAlt, text: "Agenda", path: "/home/agenda" },
     { icon: FaBook, text: "Cours enseignés", path: "/home/coursinscrit" },
     { icon: FaClipboardList, text: "Cours Inscrit", path: "/home/courjoin" },
-    { icon: FaArchive, text: "Cours archivés", path: "/home/archives" },
-    { icon: FaUsers, text: "Groupes", path: "/groups" },
-    { icon: FaComments, text: "Messages", path: "/messages" },
+   
     { icon: FaCog, text: "Paramètres", path: "/home/settings" },
   ];
 
