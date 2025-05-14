@@ -282,11 +282,10 @@ export const CourseHeader = ({ course, onCourseUpdate }) => {
                           alt="QR Code de la clé d'accès"
                           className="w-48 h-48 mb-4"
                         />
-<<<<<<< HEAD
                         <p className="text-center font-medium mt-2">Clé: {accessKey}</p>
                         <p className="text-xs text-center text-gray-500 mt-1">
                           Scannez ce code QR pour accéder directement au cours
-=======
+
                       </div>
                       <div className="grid gap-2">
                         <label htmlFor="description" className="text-sm font-medium">
