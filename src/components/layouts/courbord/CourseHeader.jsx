@@ -311,7 +311,6 @@ export const CourseHeader = ({ course, onCourseUpdate }) => {
                         />
                         <p className="text-xs text-gray-500">
                           Format recommandé: 1280x720px ou 16:9
->>>>>>> 4784de49ab2880606c8914385054258294514c4a
                         </p>
                       </div>
                       <div className="flex justify-center w-full">
