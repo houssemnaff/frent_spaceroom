@@ -6,6 +6,7 @@ import { Clipboard, Link as LinkIcon, Settings, Eye } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/pages/auth/authContext";
 import { fetchUserById } from "@/services/userapi";
+import { Textarea } from "@/components/ui/Textarea";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ImageUpload from "../addcour/ImageUpload";
@@ -285,32 +286,6 @@ export const CourseHeader = ({ course, onCourseUpdate }) => {
                         <p className="text-center font-medium mt-2">Clé: {accessKey}</p>
                         <p className="text-xs text-center text-gray-500 mt-1">
                           Scannez ce code QR pour accéder directement au cours
-
-                      </div>
-                      <div className="grid gap-2">
-                        <label htmlFor="description" className="text-sm font-medium">
-                          Description
-                        </label>
-                        <Input
-                          id="description"
-                          value={updateData.description}
-                          onChange={(e) => setUpdateData({ ...updateData, description: e.target.value })}
-                          placeholder="Description du cours"
-                          className="min-h-24 focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className="text-sm font-medium">
-                          Image du cours
-                        </label>
-                        <ImageUpload
-                          onImageUpload={(imageUrl, file) => {
-                            setUpdateData({ ...updateData, imageFile: file });
-                          }}
-                          currentImage={imageurl}
-                        />
-                        <p className="text-xs text-gray-500">
-                          Format recommandé: 1280x720px ou 16:9
                         </p>
                       </div>
                       <div className="flex justify-center w-full">
