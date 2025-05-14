@@ -20,7 +20,11 @@ const NotificationsDropdown = ({ notificationData, isDark, isMobile = false }) =
     deleteNotification
   } = notificationData || {};
 
+<<<<<<< HEAD
   // State to track swipe
+=======
+  ////// State to track swipe
+>>>>>>> 4784de49ab2880606c8914385054258294514c4a
   const [swipeState, setSwipeState] = useState({});
   const touchStartX = useRef({});
   const touchEndX = useRef({});

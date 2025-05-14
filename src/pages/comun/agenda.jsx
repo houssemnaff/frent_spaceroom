@@ -10,11 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4784de49ab2880606c8914385054258294514c4a
 import { Calendar as CalendarIcon, Check, Loader2, User, Book, FileText, List } from "lucide-react";
 import { fetchMyCourses, fetchJoinedCourses } from "../../services/coursapi";
 import axios from "axios";
 import { useAuth } from "../auth/authContext";
-
+//hello
 // Configuration du localizer pour la langue française
 moment.locale("fr");
 const localizer = momentLocalizer(moment);
