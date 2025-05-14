@@ -28,7 +28,7 @@ const Joinform = ({ isOpen, onOpenChange, onSubmit, onCancel }) => {
   
       // Handle success response from backend
       if (response.status === 200) {
-        toast.success(response.data.message || "Vous avez rejoint le cours avec succès! ✅");
+       // toast.success(response.data.message || "Vous avez rejoint le cours avec succès! ✅");
         onSubmit(); // Close the dialog and handle success
       }
     } catch (error) {
@@ -65,7 +65,6 @@ const Joinform = ({ isOpen, onOpenChange, onSubmit, onCancel }) => {
       <DialogContent className="w-full p-6 bg-white shadow-md rounded-lg">
         <div className="flex justify-between items-center text-xl font-semibold text-gray-800 pb-3 border-b">
           <div>Rejoindre</div>
-          <X className="w-6 h-6 cursor-pointer text-gray-500 hover:text-gray-800" onClick={onCancel} />
         </div>
 
         {/* Mode Selection */}

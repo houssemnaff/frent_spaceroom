@@ -81,7 +81,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-blue-800">Email</h3>
-                  <p className="text-black">support@spaceroom.com</p>
+                  <p className="text-black">houssemnaffouti28@gmail.com.com</p>
                   <p className="text-sm text-blue-500 mt-1">Réponse sous 24h</p>
                 </div>
               </div>
@@ -92,7 +92,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-blue-800">Téléphone</h3>
-                  <p className="text-black">+33 1 23 45 67 89</p>
+                  <p className="text-black">+216 99 85 75 19</p>
                   <p className="text-sm text-blue-500 mt-1">Lun-Ven, 9h-18h</p>
                 </div>
               </div>
@@ -109,11 +109,7 @@ const ContactPage = () => {
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-blue-100">
-              <h3 className="font-semibold text-blue-800 mb-3">Notre siège social</h3>
-              <p className="text-black">123 Rue de l'Éducation</p>
-              <p className="text-black">75015 Paris, France</p>
-            </div>
+           
           </div>
           
           {/* Contact Form */}

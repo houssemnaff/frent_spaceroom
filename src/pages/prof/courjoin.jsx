@@ -1,133 +1,65 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/pages/auth/authContext";
+import React, { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/pages/auth/authContext";
+import { toast } from "react-toastify";
 
 const JoinCourse = () => {
   const { accessKey } = useParams();
+  const { user, token, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { token, isAuthenticated, user } = useAuth();
-  const [status, setStatus] = useState("loading"); // loading, success, error, already_enrolled
-  const [message, setMessage] = useState("");
-  const [courseId, setCourseId] = useState(null);
-  const [courseTitle, setCourseTitle] = useState("");
 
   useEffect(() => {
     const joinCourse = async () => {
-      // If not authenticated, store the current URL for redirect after login
-      if (!isAuthenticated) {
-        // Store the redirect URL in localStorage or sessionStorage
-        sessionStorage.setItem("redirectAfterLogin", location.pathname);
-        
-        // Redirect to login
-        navigate("/login", { replace: true });
-        return;
-      }
-
       try {
-        setStatus("loading");
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/course/join/${accessKey}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const data = response.data;
-        setMessage(data.message);
-        
-        if (data.status === "success") {
-          setStatus("success");
-          setCourseId(data.courseId);
-          setCourseTitle(data.courseTitle);
-        } else if (data.status === "already_enrolled") {
-          setStatus("already_enrolled");
-          setCourseId(data.courseId);
+        if (!isAuthenticated) {
+          // Si non authentifié, sauvegarder la clé et rediriger vers le login
+          localStorage.setItem("joinCourseKey", accessKey);
+          navigate("/login");
+          return;
         }
+
+        // Si authentifié, rejoindre directement le cours
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/course/join/${accessKey}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        toast.success(response.data.message || "Vous avez rejoint le cours avec succès!");
+        navigate("/home");
       } catch (error) {
-        console.error('Error joining course:', error);
-        setStatus("error");
-        setMessage(error.response?.data?.message || "Une erreur s'est produite lors de la tentative de rejoindre le cours");
+        console.error("Error joining course:", error);
+        let errorMessage = "Une erreur est survenue";
+
+        if (error.response) {
+          switch (error.response.data.message) {
+            case "Vous avez déjà rejoint ce cours":
+              errorMessage = "Vous avez déjà rejoint ce cours";
+              break;
+            case "Clé d'accès incorrecte ou cours introuvable":
+              errorMessage = "Lien d'invitation invalide ou expiré";
+              break;
+            default:
+              errorMessage = error.response.data.message;
+          }
+        }
+
+        toast.error(errorMessage);
+        navigate("/home");
       }
     };
 
     if (accessKey) {
       joinCourse();
     }
-  }, [accessKey, isAuthenticated, token, navigate, location.pathname]);
+  }, [accessKey, isAuthenticated, token, navigate]);
 
-  const handleNavigateToCourse = () => {
-    if (courseId) {
-      navigate(`/home/course/${courseId}`);
-    } else {
-      navigate("/home");
-    }
-  };
-
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-xl">Rejoindre un cours</CardTitle>
-          <CardDescription>
-            {status === "loading" ? "Traitement de votre demande..." : ""}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center p-6 text-center space-y-4">
-            {status === "loading" && (
-              <Loader2 className="w-12 h-12 animate-spin text-primary" />
-            )}
-            
-            {status === "success" && (
-              <>
-                <CheckCircle2 className="w-12 h-12 text-green-500 dark:text-green-400" />
-                <p className="text-lg font-medium">{message}</p>
-                <p>Vous avez rejoint le cours <span className="font-semibold">{courseTitle}</span> avec succès.</p>
-              </>
-            )}
-            
-            {status === "already_enrolled" && (
-              <>
-                <CheckCircle2 className="w-12 h-12 text-blue-500 dark:text-blue-400" />
-                <p className="text-lg font-medium">{message}</p>
-                <p>Vous pouvez accéder au cours immédiatement.</p>
-              </>
-            )}
-            
-            {status === "error" && (
-              <>
-                <AlertCircle className="w-12 h-12 text-red-500 dark:text-red-400" />
-                <p className="text-lg font-medium">Impossible de rejoindre le cours</p>
-                <p>{message}</p>
-              </>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          {(status === "success" || status === "already_enrolled") && (
-            <Button onClick={handleNavigateToCourse}>
-              Accéder au cours
-            </Button>
-          )}
-          
-          {status === "error" && (
-            <Button variant="outline" onClick={() => navigate("/home")}>
-              Retour à l'accueil
-            </Button>
-          )}
-          
-          {status === "loading" && (
-            <Button disabled>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Chargement
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
-    </div>
-  );
+  return null; // Ce composant ne rend rien, il gère seulement la logique
 };
 
 export default JoinCourse;

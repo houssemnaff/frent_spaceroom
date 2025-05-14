@@ -29,6 +29,36 @@ export const useNotificationService = (token) => {
     }
   };
 
+  // Delete a notification
+  const deleteNotification = async (notificationId) => {
+    if (!token || !notificationId) return;
+    
+    setLoading(true);
+    try {
+      await axios.delete(`${apiUrl}/${notificationId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      // Update local state by removing the deleted notification
+      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+      
+      // Update unread count if necessary
+      const deletedNotification = notifications.find(n => n._id === notificationId);
+      if (deletedNotification && !deletedNotification.read) {
+        setUnreadCount(prev => prev - 1);
+      }
+      
+      toast.success("Notification deleted successfully");
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      toast.error(error.response?.data?.message || "Failed to delete notification");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Mark specific notifications as read
   const markAsRead = async (notificationIds) => {
     if (!token || !notificationIds.length) return;
@@ -131,5 +161,6 @@ export const useNotificationService = (token) => {
     markAllAsRead,
     formatRelativeTime,
     getNotificationIcon,
+    deleteNotification,
   };
 };

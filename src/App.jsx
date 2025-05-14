@@ -119,7 +119,7 @@ const App = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        
+        theme="colored"
         limit={3}
         style={{ zIndex: 9999 }}
         enableMultiContainer

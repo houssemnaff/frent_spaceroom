@@ -39,7 +39,8 @@ export const DashboardLayout = () => {
     unreadCount, 
     markAsRead, 
     markAllAsRead, 
-    fetchNotifications 
+    fetchNotifications ,
+    deleteNotification
   } = useNotification();
   
   const [profileData, setProfileData] = useState({
@@ -92,11 +93,9 @@ export const DashboardLayout = () => {
   const handleProfileSubmit = async () => {
     // Validate form
     if (!profileData.name.trim()) {
-      toast({
-        title: "Error",
-        description: "Name cannot be empty",
-        variant: "destructive",
-      });
+     
+      toast.error("Name cannot be empty");
+
       return;
     }
 
@@ -130,10 +129,7 @@ export const DashboardLayout = () => {
         setUser(updatedUser);
       
       // Show success message
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated",
-      });
+      toast.success("Your profile has been successfully updated");
       
       // Close the profile sheet
       setIsProfileOpen(false);
@@ -141,11 +137,7 @@ export const DashboardLayout = () => {
       console.error("Error updating profile:", error);
       
       // Show error message
-      toast({
-        title: "Update failed",
-        description: error.message || "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -156,11 +148,7 @@ export const DashboardLayout = () => {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid file",
-          description: "Please select an image file",
-          variant: "destructive",
-        });
+        toast.error("Please select an image file");
         return;
       }
       
@@ -188,7 +176,8 @@ export const DashboardLayout = () => {
     unreadCount,
     markAsRead,
     markAllAsRead,
-    fetchNotifications
+    fetchNotifications,
+    deleteNotification
   };
 
   // Get notification icon based on type - for mobile menu

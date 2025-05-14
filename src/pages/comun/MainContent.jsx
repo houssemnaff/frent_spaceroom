@@ -5,8 +5,7 @@ import { useAuth } from "@/pages/auth/authContext";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { fetchJoinedCourses, fetchMyCourses } from "@/services/coursapi";
-import { getJoinedQuizzes, getMyQuizzes } from "@/services/quizapi";
-import QuizCard from "@/components/cards/QuizCard";
+;
 import { toast } from "react-toastify";
 export const MainContent = () => {
   const { user, token } = useAuth();
@@ -29,7 +28,7 @@ export const MainContent = () => {
       setMyCourses(myCoursesData);
       setJoinedCourses(joinedCoursesData);
     } catch (error) {
-      console.error("Erreur lors de la récupération des cours :", error);
+     // console.error("Erreur lors de la récupération des cours :", error);
       setError(error.message || "Une erreur est survenue");
       toast.error("Erreur lors du chargement des cours");
     } finally {
@@ -37,23 +36,6 @@ export const MainContent = () => {
     }
   };
 
-  // Fonction pour récupérer les quiz de l'utilisateur
-  const fetchUserQuizzes = async () => {
-    try {
-      setQuizzesLoading(true);
-      const quizzes = await getMyQuizzes(token);
-      const quizzesjoined = await getJoinedQuizzes(token);
-
-      setJoinedquiz(quizzesjoined);
-      setMyQuizzes(quizzes);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des quiz :", error);
-      setError(error.message || "Une erreur est survenue lors du chargement des quiz");
-      toast.error("Erreur lors du chargement des quiz");
-    } finally {
-      setQuizzesLoading(false);
-    }
-  };
 
   // Charger les cours et les quiz au montage du composant
   useEffect(() => {
@@ -74,7 +56,7 @@ export const MainContent = () => {
   };
 
   const allCourses = [...myCourses, ...joinedCourses];
-  console.log("course",allCourses);
+  //console.log("course",allCourses);
 
   const allquiz = [...myQuizzes, ...joinedquiz];
 
@@ -107,7 +89,7 @@ export const MainContent = () => {
     <main className="flex flex-col items-stretch w-full mx-auto p-4 md:p-6 lg:p-8 bg-transparent">
       {/* Navbar avec un espacement réduit */}
       <div className="pb-4">
-        <Navbartablebord refreshCourses={refreshCourses} refreshQuizzes={fetchUserQuizzes} />
+        <Navbartablebord refreshCourses={refreshCourses}  />
       </div>
 
       {/* Section Mes Cours */}
@@ -137,46 +119,135 @@ export const MainContent = () => {
                 />
               ))
             ) : (
-              <p className="col-span-full text-center text-gray-600">
-                Aucun cours disponible.
-              </p>
+              <EmptyCoursesMessage/>
             )}
           </div>
         </div>
 
-        {/* Section Mes Quiz
-        <div className="mt-8">
-          <h2 className="text-black text-lg md:text-xl font-semibold">Mes Quiz</h2>
-          <div className="mt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {quizzesLoading ? (
-                [...Array(3)].map((_, index) => (
-                  <Skeleton key={`quiz-skeleton-${index}`} height={100} className="rounded-lg" />
-                ))
-              ) : allquiz.length > 0 ? (
-                allquiz?.map((quiz) => (
-                  <QuizCard
-                    key={quiz._id}
-                    id={quiz._id}
-                    icon="/quiz-icon.png"
-                    title={quiz.title}
-                    description={quiz.description || "Aucune description"}
-                    status={getQuizStatus(quiz)}
-                    openingDate={formatDate(quiz.openingDate)}
-                    closingDate={formatDate(quiz.closingDate)}
-                    timeLimit={quiz.timeLimit ? `${quiz.timeLimit} min` : "Pas de limite"}
-                  />
-                ))
-              ) : (
-                <p className="col-span-full text-center text-gray-600">
-                  Aucun quiz disponible. Créez votre premier quiz !
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-         */}
+
       </section>
     </main>
   );
 };
+
+
+  // Composant pour afficher quand aucun cours n'est disponible
+  const EmptyCoursesMessage = () => {
+    return (
+      <div className="col-span-full flex flex-col items-center justify-center py-12 px-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+        {/* SVG Animé avec personnage et bulle de dialogue */}
+        <svg 
+          width="200" 
+          height="200" 
+          viewBox="0 0 200 200" 
+          className="mb-6"
+        >
+          {/* Fond circulaire animé */}
+          <circle 
+            cx="100" 
+            cy="100" 
+            r="80" 
+            fill="#EFF6FF" 
+            className="animate-pulse-slow"
+          />
+          
+          {/* Personnage */}
+          <g className="animate-bounce-soft">
+            {/* Tête */}
+            <circle cx="100" cy="80" r="25" fill="#8BB8E8" stroke="#4C51BF" strokeWidth="2"/>
+            
+            {/* Yeux */}
+            <circle cx="90" cy="75" r="4" fill="#2D3748" className="animate-blink"/>
+            <circle cx="110" cy="75" r="4" fill="#2D3748" className="animate-blink"/>
+            
+            {/* Sourire */}
+            <path 
+              d="M85 95 Q100 110 115 95" 
+              stroke="#2D3748" 
+              strokeWidth="2" 
+              fill="none"
+              strokeLinecap="round"
+            />
+            
+            {/* Corps */}
+            <rect x="85" y="110" width="30" height="40" rx="5" fill="#6E56CF" stroke="#4C51BF" strokeWidth="2"/>
+            
+            {/* Livre (animé séparément) */}
+            <g className="animate-book-float">
+              <rect x="120" y="115" width="30" height="25" rx="3" fill="#FFD166" stroke="#D97706" strokeWidth="1.5"/>
+              <line x1="120" y1="125" x2="150" y2="125" stroke="#92400E" strokeWidth="1"/>
+              <line x1="120" y1="130" x2="150" y2="130" stroke="#92400E" strokeWidth="1"/>
+            </g>
+          </g>
+          
+          {/* Bulle de dialogue animée */}
+          <g className="animate-float">
+            <path 
+              d="M50 60 C40 30 20 40 30 70 C25 75 45 75 50 70 Z" 
+              fill="white" 
+              stroke="#CBD5E0" 
+              strokeWidth="1.5"
+            />
+            <text 
+              x="40" 
+              y="60" 
+              fontSize="12" 
+              fontWeight="bold" 
+              fill="#4C51BF"
+              textAnchor="middle"
+            >
+              ?
+            </text>
+          </g>
+        </svg>
+  
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          Aucun cours disponible
+        </h3>
+        <p className="text-gray-600 text-center mb-6 max-w-md">
+          Vous n'avez rejoint aucun cours pour le moment. Commencez votre parcours d'apprentissage !
+        </p>
+       
+  
+        {/* Styles d'animation intégrés */}
+        <style jsx>{`
+          .animate-pulse-slow {
+            animation: pulse 4s ease-in-out infinite;
+          }
+          .animate-bounce-soft {
+            animation: bounce 6s ease-in-out infinite;
+          }
+          .animate-book-float {
+            animation: bookFloat 3s ease-in-out infinite;
+          }
+          .animate-float {
+            animation: float 5s ease-in-out infinite;
+          }
+          .animate-blink {
+            animation: blink 4s ease-in-out infinite;
+          }
+          @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+          }
+          @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+          }
+          @keyframes bookFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(2deg); }
+          }
+          @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-5px) translateX(2px); }
+            75% { transform: translateY(3px) translateX(-2px); }
+          }
+          @keyframes blink {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+          }
+        `}</style>
+      </div>
+    );
+  };

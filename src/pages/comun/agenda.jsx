@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarIcon, Check, Loader2, User, Book, FileText, List } from "lucide-react";
 import { fetchMyCourses, fetchJoinedCourses } from "../../services/coursapi";
 import axios from "axios";
@@ -19,6 +18,7 @@ import { useAuth } from "../auth/authContext";
 // Configuration du localizer pour la langue française
 moment.locale("fr");
 const localizer = momentLocalizer(moment);
+
 
 // Types d'événements éducatifs
 const eventTypes = [

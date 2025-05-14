@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Clipboard, Link as LinkIcon, Settings } from "lucide-react";
+import { Clipboard, Link as LinkIcon, Settings, Eye } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/pages/auth/authContext";
 import { fetchUserById } from "@/services/userapi";
@@ -30,6 +30,8 @@ export const CourseHeader = ({ course, onCourseUpdate }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // État pour contrôler l'affichage du QR code
+  const [showQRCode, setShowQRCode] = useState(false);
   
   // État local du cours qui sera mis à jour en direct
   const [localCourse, setLocalCourse] = useState(course);
@@ -103,6 +105,10 @@ export const CourseHeader = ({ course, onCourseUpdate }) => {
       setCopied(false);
       setCopiedItem('');
     }, 2000);
+  };
+
+  const handleToggleQRCode = () => {
+    setShowQRCode(prev => !prev);
   };
 
   const handleUpdate = async () => {
@@ -202,6 +208,14 @@ export const CourseHeader = ({ course, onCourseUpdate }) => {
     setIsDialogOpen(false);
   };
 
+  // Fonction pour générer un QR Code en SVG pour la clé d'accès
+  const generateQRCodeSVG = () => {
+    // Utilisation de la SVG inline pour créer un QR code simple
+    // Ceci est un exemple simplifié, dans une application réelle,
+    // il serait préférable d'utiliser une bibliothèque dédiée comme qrcode.react
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${accessKey}`;
+  };
+
   if (isLoading) {
     return (
       <Card className="relative w-full overflow-hidden rounded-lg shadow-sm border border-gray-200 h-48 md:h-64 lg:h-72 flex items-center justify-center">
@@ -245,86 +259,123 @@ export const CourseHeader = ({ course, onCourseUpdate }) => {
               </div>
               
               {isOwner && (
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-white hover:bg-white/20 rounded-full ml-2"
-                    >
-                      <Settings className="w-5 h-5" />
-                      <span className="sr-only">Modifier le cours</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle className="text-xl">Modifier les détails du cours</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid gap-2">
-                        <label htmlFor="title" className="text-sm font-medium">
-                          Titre du cours *
-                        </label>
-                        <Input
-                          id="title"
-                          value={updateData.title}
-                          onChange={(e) => setUpdateData({ ...updateData, title: e.target.value })}
-                          placeholder="Titre du cours"
-                          className="focus:ring-2 focus:ring-blue-500"
+                <div className="flex gap-2">
+                  {/* Bouton pour afficher le QR Code */}
+                  <Dialog open={showQRCode} onOpenChange={setShowQRCode}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-white hover:bg-white/20 rounded-full"
+                        onClick={handleToggleQRCode}
+                      >
+                        <Eye className="w-5 h-5" />
+                        <span className="sr-only">Afficher QR Code</span>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[350px] flex flex-col items-center justify-center">
+                      <DialogHeader>
+                        <DialogTitle className="text-center text-xl">Code d'accès QR</DialogTitle>
+                      </DialogHeader>
+                      <div className="my-6 flex flex-col items-center">
+                        <img 
+                          src={generateQRCodeSVG()} 
+                          alt="QR Code de la clé d'accès"
+                          className="w-48 h-48 mb-4"
                         />
-                      </div>
-                      <div className="grid gap-2">
-                        <label htmlFor="description" className="text-sm font-medium">
-                          Description
-                        </label>
-                        <Textarea
-                          id="description"
-                          value={updateData.description}
-                          onChange={(e) => setUpdateData({ ...updateData, description: e.target.value })}
-                          placeholder="Description du cours"
-                          className="min-h-24 focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <label className="text-sm font-medium">
-                          Image du cours
-                        </label>
-                        <ImageUpload
-                          onImageUpload={(imageUrl, file) => {
-                            setUpdateData({ ...updateData, imageFile: file });
-                          }}
-                          currentImage={imageurl}
-                        />
-                        <p className="text-xs text-gray-500">
-                          Format recommandé: 1280x720px ou 16:9
+                        <p className="text-center font-medium mt-2">Clé: {accessKey}</p>
+                        <p className="text-xs text-center text-gray-500 mt-1">
+                          Scannez ce code QR pour accéder directement au cours
                         </p>
                       </div>
-                    </div>
-                    <div className="flex justify-end gap-2 mt-2">
+                      <div className="flex justify-center w-full">
+                        <Button onClick={() => setShowQRCode(false)}>Fermer</Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Bouton des paramètres */}
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
                       <Button
-                        variant="outline"
-                        onClick={handleCancel}
-                        type="button"
-                        className="border-gray-300"
+                        variant="ghost"
+                        size="icon"
+                        className="text-white hover:bg-white/20 rounded-full"
                       >
-                        Annuler
+                        <Settings className="w-5 h-5" />
+                        <span className="sr-only">Modifier le cours</span>
                       </Button>
-                      <Button
-                        onClick={handleUpdate}
-                        disabled={isUpdating}
-                        type="button"
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        {isUpdating ? (
-                          <>
-                            <span className="animate-spin h-4 w-4 mr-2 border-t-2 border-b-2 border-white rounded-full"></span>
-                            Mise à jour...
-                          </>
-                        ) : "Mettre à jour"}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px]">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl">Modifier les détails du cours</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <label htmlFor="title" className="text-sm font-medium">
+                            Titre du cours *
+                          </label>
+                          <Input
+                            id="title"
+                            value={updateData.title}
+                            onChange={(e) => setUpdateData({ ...updateData, title: e.target.value })}
+                            placeholder="Titre du cours"
+                            className="focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <label htmlFor="description" className="text-sm font-medium">
+                            Description
+                          </label>
+                          <Input
+                            id="description"
+                            value={updateData.description}
+                            onChange={(e) => setUpdateData({ ...updateData, description: e.target.value })}
+                            placeholder="Description du cours"
+                            className="focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <label className="text-sm font-medium">
+                            Image du cours
+                          </label>
+                          <ImageUpload
+                            onImageUpload={(imageUrl, file) => {
+                              setUpdateData({ ...updateData, imageFile: file });
+                            }}
+                            currentImage={imageurl}
+                          />
+                          <p className="text-xs text-gray-500">
+                            Format recommandé: 1280x720px ou 16:9
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 mt-2">
+                        <Button
+                          variant="outline"
+                          onClick={handleCancel}
+                          type="button"
+                          className="border-gray-300"
+                        >
+                          Annuler
+                        </Button>
+                        <Button
+                          onClick={handleUpdate}
+                          disabled={isUpdating}
+                          type="button"
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          {isUpdating ? (
+                            <>
+                              <span className="animate-spin h-4 w-4 mr-2 border-t-2 border-b-2 border-white rounded-full"></span>
+                              Mise à jour...
+                            </>
+                          ) : "Mettre à jour"}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               )}
             </div>
             

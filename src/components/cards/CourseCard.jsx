@@ -9,7 +9,7 @@ import { useAuth } from "@/pages/auth/authContext";
 import { fetchUserById } from "@/services/userapi";
 import { fetchCourseProgress } from "@/services/progressApi";
 import { Trash2, LogOut, CheckCircle } from "lucide-react";
-import { deleteCourse, updateCourse } from "@/services/coursapi";
+import { deleteCourse, removeStudentFromCourse, updateCourse } from "@/services/coursapi";
 import { toast } from "react-toastify";
 import {
   DropdownMenu,
@@ -35,7 +35,7 @@ export const CourseCard = ({ id, icon, title, description,students, isOwner, own
   const [isCompleted, setIsCompleted] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
-
+//console.log("student ",students);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -86,7 +86,7 @@ export const CourseCard = ({ id, icon, title, description,students, isOwner, own
   
   const confirmLeaveCourse = async () => {
     try {
-      // Implémentez leaveCourse dans coursapi.js
+    await removeStudentFromCourse(id, user._id, token);
       toast.success("Vous avez quitté le cours");
       onCourseLeft?.(id);
     } catch (error) {
@@ -117,10 +117,6 @@ export const CourseCard = ({ id, icon, title, description,students, isOwner, own
     }
   };
 
-  const handleEditCourse = (e) => {
-    e.stopPropagation();
-    navigate(`/home/course/${id}/edit`);
-  };
 
   if (loading) {
     return (

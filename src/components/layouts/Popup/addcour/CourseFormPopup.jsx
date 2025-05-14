@@ -15,7 +15,7 @@ const CourseFormPopup = ({ isOpen, onOpenChange, onSubmit, onCancel }) => {
 
   const handleFormSubmit = async (data) => {
     try {
-      console.log("Données du cours:", data); // Log the data to verify
+      //console.log("Données du cours:", data); // Log the data to verify
 
       // Call the createCourse function from courseApi.js
       const course = await createCourse(data, token);
@@ -41,8 +41,8 @@ const CourseFormPopup = ({ isOpen, onOpenChange, onSubmit, onCancel }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="p-6 max-w-2xl flex flex-col gap-6">
-        <DialogHeader>
+ <DialogContent className="p-6 max-w-2xl max-h-[90vh] overflow-y-auto"> {/* Added max-h and overflow */}        
+  <DialogHeader>
           <DialogTitle>Créer un cours</DialogTitle>
         </DialogHeader>
 

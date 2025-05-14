@@ -15,7 +15,7 @@ import {
   EditMeetingDialog, 
   DeleteMeetingDialog 
 } from "../meeting/metingpopup";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "../admin/componnents/themcontext";
@@ -192,62 +192,61 @@ const MeetingPage = () => {
     }
   };
 
-// Créer instantanément une réunion et la rejoindre
-const handleCreateInstantMeeting = async () => {
-  if (!instantMeetingForm.title) {
+  // Créer instantanément une réunion et la rejoindre
+  const handleCreateInstantMeeting = async () => {
+    if (!instantMeetingForm.title) {
       toast.error("Veuillez saisir un titre pour la réunion.");
-    return;
-  }
-  setIsOperationLoading(true);
-  try {
-    const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split("T")[0];
-    const formattedTime = currentDate.getHours().toString().padStart(2, "0") + ":" + 
-                        currentDate.getMinutes().toString().padStart(2, "0");
-    
-    const response = await axios.post(
-      `${API_URL}/meetings/`,
-      {
-        courseId,
-        title: instantMeetingForm.title,
-        date: formattedDate,
-        time: formattedTime,
-          duration: 60,
-        description: instantMeetingForm.description,
-        location: instantMeetingForm.location,
-          isInstant: true,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    
-    const newMeeting = response.data.meeting;
-    if (!newMeeting.isInstant) {
-      newMeeting.isInstant = true;
+      return;
     }
-    
-    setUpcomingMeetings((prev) =>
-      [...prev, newMeeting].sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
-    );
-    
+    setIsOperationLoading(true);
+    try {
+      const currentDate = new Date();
+      const formattedDate = currentDate.toISOString().split("T")[0];
+      const formattedTime = currentDate.getHours().toString().padStart(2, "0") + ":" + 
+                          currentDate.getMinutes().toString().padStart(2, "0");
+      
+      const response = await axios.post(
+        `${API_URL}/meetings/`,
+        {
+          courseId,
+          title: instantMeetingForm.title,
+          date: formattedDate,
+          time: formattedTime,
+          duration: 60,
+          description: instantMeetingForm.description,
+          location: instantMeetingForm.location,
+          isInstant: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      
+      const newMeeting = response.data.meeting;
+      if (!newMeeting.isInstant) {
+        newMeeting.isInstant = true;
+      }
+      
+      setUpcomingMeetings((prev) =>
+        [...prev, newMeeting].sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+      );
+      
       toast.success("Réunion instantanée créée ! Vous rejoignez la salle... 🚀");
-    setIsInstantMeetingDialogOpen(false);
-    resetForm();
-    
-    handleJoinMeeting(newMeeting);
-  } catch (error) {
-    console.error("Erreur lors de la création de la réunion instantanée:", error);
+      setIsInstantMeetingDialogOpen(false);
+      resetForm();
+      
+      handleJoinMeeting(newMeeting);
+    } catch (error) {
+      console.error("Erreur lors de la création de la réunion instantanée:", error);
       toast.error(error.response?.data?.message || "Impossible de créer la réunion instantanée");
-  } finally {
-    setIsOperationLoading(false);
-  }
-};
+    } finally {
+      setIsOperationLoading(false);
+    }
+  };
 
-  // Mettre à jour une réunion existante
   const handleUpdateMeeting = async () => {
     if (!meetingForm.title || !meetingForm.date || !meetingForm.time) {
       toast.error("Veuillez remplir tous les champs obligatoires.");
@@ -275,20 +274,22 @@ const handleCreateInstantMeeting = async () => {
       
       const updatedMeeting = response.data.meeting;
       const now = new Date();
-      const meetingEndTime = new Date(updatedMeeting.startTime);
-      meetingEndTime.setMinutes(meetingEndTime.getMinutes() + updatedMeeting.duration);
+      const meetingStartTime = new Date(updatedMeeting.startTime);
+      const meetingEndTime = new Date(meetingStartTime.getTime() + updatedMeeting.duration * 60000);
       
+      // Supprimer la réunion de la liste où elle était avant
+      setUpcomingMeetings(prev => prev.filter(m => m._id !== updatedMeeting._id));
+      setPastMeetings(prev => prev.filter(m => m._id !== updatedMeeting._id));
+      
+      // Ajouter la réunion à la liste appropriée
       if (meetingEndTime > now) {
-        setUpcomingMeetings((prev) =>
-          prev
-            .map((m) => (m._id === updatedMeeting._id ? updatedMeeting : m))
-            .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+        setUpcomingMeetings(prev =>
+          [...prev, updatedMeeting].sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
         );
+        setActiveTab("upcoming"); // Basculer vers l'onglet "À venir"
       } else {
-        setPastMeetings((prev) =>
-          prev
-            .map((m) => (m._id === updatedMeeting._id ? updatedMeeting : m))
-            .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
+        setPastMeetings(prev =>
+          [...prev, updatedMeeting].sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
         );
       }
       
@@ -302,7 +303,6 @@ const handleCreateInstantMeeting = async () => {
       setIsOperationLoading(false);
     }
   };
-
   // Supprimer une réunion
   const handleDeleteMeeting = async () => {
     if (!selectedMeeting) return;
@@ -331,48 +331,48 @@ const handleCreateInstantMeeting = async () => {
     }
   };
 
-// Rejoindre une réunion
-const handleJoinMeeting = async (meeting) => {
-  try {
-    console.log('Tentative de rejoindre la réunion:', {
-      meetingId: meeting._id,
-      isInstant: meeting.isInstant,
-      startTime: meeting.startTime,
-      serverTime: new Date().toISOString(),
-      clientTime: new Date().toISOString(),
-      timezoneOffset: new Date().getTimezoneOffset()
-    });
-    
-    if (!meeting.isInstant) {
-      const meetingTime = new Date(meeting.startTime);
-      const now = new Date();
-        const timeDiff = (meetingTime - now) / (1000 * 60);
+  // Rejoindre une réunion
+  const handleJoinMeeting = async (meeting) => {
+    try {
+      console.log('Tentative de rejoindre la réunion:', {
+        meetingId: meeting._id,
+        isInstant: meeting.isInstant,
+        startTime: meeting.startTime,
+        serverTime: new Date().toISOString(),
+        clientTime: new Date().toISOString(),
+        timezoneOffset: new Date().getTimezoneOffset()
+      });
       
-      if (timeDiff > 15) {
+      if (!meeting.isInstant) {
+        const meetingTime = new Date(meeting.startTime);
+        const now = new Date();
+        const timeDiff = (meetingTime - now) / (1000 * 60);
+        
+        if (timeDiff > 15) {
           toast.warning(`Cette réunion n'est pas encore disponible. Elle sera accessible 15 minutes avant l'heure prévue (${formatTime(meeting.startTime)}).`);
-        return;
+          return;
+        }
       }
-    }
-    
-    const response = await axios.post(
-      `${API_URL}/meetings/${meeting._id}/join`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    
-    const { roomID } = response.data;
-    const updatedMeeting = { ...meeting, roomID };
-    setActiveMeeting(updatedMeeting);
+      
+      const response = await axios.post(
+        `${API_URL}/meetings/${meeting._id}/join`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      const { roomID } = response.data;
+      const updatedMeeting = { ...meeting, roomID };
+      setActiveMeeting(updatedMeeting);
       toast.success("Connexion à la réunion établie ! 🎥");
-  } catch (error) {
-    console.error("Erreur lors de l'accès à la réunion:", error);
+    } catch (error) {
+      console.error("Erreur lors de l'accès à la réunion:", error);
       toast.error(error.response?.data?.message || "Impossible de rejoindre la réunion");
-  }
-};
+    }
+  };
 
   // Fermer la salle de réunion
   const handleCloseMeetingRoom = () => {
@@ -448,7 +448,7 @@ const handleJoinMeeting = async (meeting) => {
           onClose={handleCloseMeetingRoom}
         />
       )}
-      <div className="space-y-6 max-w-5xl mx-auto pb-10">
+      <div className="space-y-4 md:space-y-6 w-full px-4 md:px-6 lg:px-8 max-w-full md:max-w-5xl mx-auto pb-6 md:pb-10">
         <MeetingHeader 
           courseName={courseName}
           isOwner={isOwner}
@@ -457,35 +457,35 @@ const handleJoinMeeting = async (meeting) => {
         />
 
         {error && (
-          <Alert variant="destructive" className="mb-6">
+          <Alert variant="destructive" className="mb-4 md:mb-6 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <div className="bg-background rounded-lg shadow-sm border overflow-hidden">
+        <div className="bg-background dark:bg-gray-900 rounded-lg shadow-sm border dark:border-gray-800 overflow-hidden">
           <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="border-b">
-              <TabsList className="w-full justify-start gap-8 p-0 rounded-none bg-transparent h-14">
+            <div className="border-b dark:border-gray-800">
+              <TabsList className="w-full justify-start gap-2 sm:gap-4 md:gap-8 p-0 rounded-none bg-transparent h-12 md:h-14 overflow-x-auto">
                 <TabsTrigger
                   value="upcoming"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none rounded-none h-14 px-6 font-medium"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary dark:data-[state=active]:border-primary-400 data-[state=active]:text-primary dark:data-[state=active]:text-primary-400 data-[state=active]:shadow-none rounded-none h-12 md:h-14 px-3 md:px-6 text-sm md:text-base font-medium whitespace-nowrap"
                 >
                   À venir
                 </TabsTrigger>
                 <TabsTrigger
                   value="past"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none rounded-none h-14 px-6 font-medium"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary dark:data-[state=active]:border-primary-400 data-[state=active]:text-primary dark:data-[state=active]:text-primary-400 data-[state=active]:shadow-none rounded-none h-12 md:h-14 px-3 md:px-6 text-sm md:text-base font-medium whitespace-nowrap"
                 >
                   Passées
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <TabsContent value="upcoming" className="m-0 px-0 py-4">
+            <TabsContent value="upcoming" className="m-0 px-0 py-2 md:py-4">
               {isLoading ? (
-                <div className="flex justify-center py-16">
-                  <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full"></div>
+                <div className="flex justify-center py-8 md:py-16">
+                  <div className="animate-spin h-6 w-6 md:h-8 md:w-8 border-t-2 border-primary dark:border-primary-400 rounded-full"></div>
                 </div>
               ) : upcomingMeetings.length > 0 ? (
                 <MeetingList
@@ -504,14 +504,15 @@ const handleJoinMeeting = async (meeting) => {
                 />
               ) : (
                 <EmptyState
-                  icon={<CalendarIcon className="h-12 w-12 text-muted-foreground" />}
+                  icon={<CalendarIcon className="h-8 w-8 md:h-12 md:w-12 text-muted-foreground dark:text-gray-500" />}
                   title="Aucune réunion à venir"
                   description="Planifiez une nouvelle réunion pour commencer"
                   action={isOwner ? (
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-4">
                       <Button
                         variant="outline"
                         onClick={() => setIsInstantMeetingDialogOpen(true)}
+                        className="dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
                       >
                         <Video className="h-4 w-4 mr-2" />
                         Réunion instantanée
@@ -519,6 +520,7 @@ const handleJoinMeeting = async (meeting) => {
                       <Button
                         variant="outline"
                         onClick={() => setIsCreateDialogOpen(true)}
+                        className="dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Planifier une réunion
@@ -529,10 +531,10 @@ const handleJoinMeeting = async (meeting) => {
               )}
             </TabsContent>
 
-            <TabsContent value="past" className="m-0 px-0 py-4">
+            <TabsContent value="past" className="m-0 px-0 py-2 md:py-4">
               {isLoading ? (
-                <div className="flex justify-center py-16">
-                  <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full"></div>
+                <div className="flex justify-center py-8 md:py-16">
+                  <div className="animate-spin h-6 w-6 md:h-8 md:w-8 border-t-2 border-primary dark:border-primary-400 rounded-full"></div>
                 </div>
               ) : pastMeetings.length > 0 ? (
                 <MeetingList
@@ -550,7 +552,7 @@ const handleJoinMeeting = async (meeting) => {
                 />
               ) : (
                 <EmptyState
-                  icon={<VideoOff className="h-12 w-12 text-muted-foreground" />}
+                  icon={<VideoOff className="h-8 w-8 md:h-12 md:w-12 text-muted-foreground dark:text-gray-500" />}
                   title="Aucune réunion passée"
                   description="Les réunions terminées apparaîtront ici"
                 />
@@ -599,18 +601,7 @@ const handleJoinMeeting = async (meeting) => {
           formatTime={formatTime}
         />
       </div>
-      <ToastContainer 
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme={theme === "dark" ? "dark" : "light"}
-      />
+     
     </>
   );
 };

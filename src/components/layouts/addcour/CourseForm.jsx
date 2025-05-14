@@ -18,13 +18,7 @@ const CourseForm = ({ onSubmit, onCancel, onPreviewUpdate }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-      <div className="flex items-stretch gap-5 text-2xl text-gray-800 font-normal leading-none flex-wrap justify-between pb-1.5">
-        <div>Créer un nouveau cours</div>
-        <X
-          className="w-[15px] h-[15px] mt-1.5 cursor-pointer"
-          onClick={onCancel}
-        />
-      </div>
+      
 
       <div className="mt-6">
         <label className="block text-gray-700 text-sm font-medium mb-1">
@@ -52,9 +46,9 @@ const CourseForm = ({ onSubmit, onCancel, onPreviewUpdate }) => {
 
       <div className="mt-6">
         <label className="block text-gray-700 text-sm font-medium mb-1">
-          Description
+          classe :
         </label>
-        <Textarea {...register("description")} className="w-full" />
+        <Input {...register("description")} className="w-full" />
       </div>
 
       <div className="mt-6">
